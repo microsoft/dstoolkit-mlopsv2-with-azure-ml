@@ -160,6 +160,8 @@ Here's a brief overview of the folders included in this repository:
 * **data:** This folder is intended for storing the data used in the ML workflow. It may include raw data, preprocessed data, or any other relevant datasets.
 * **docs:** Provides additional documentation, guides, or resources related to the project.
 * **environment:** Contains the necessary files for managing the project's environment such as conda environment file.
+* **eval:** The eval directory is used to store the evaluation results of the ML models.
+* **models:** The models directory is used to store the trained ML models and related artifacts.
 * **notebooks:** This folder is intended for storing interactive notebooks used for exploratory data analysis and experimentation.
 * **operations:** Contains operational scripts and pipelines for deploying, testing, and creating the ML workflow on Azure.
 * **src:** The source code directory is where you'll find the main implementation of the ML workflow, including data preprocessing, model training, evaluation, and other related functionalities.
@@ -170,4 +172,4 @@ Feel free to explore each folder and leverage the provided structure to organize
 
 ## Let's Get Started! 🚀
 
-Explore the provided examples, experiment with the MLOps reference architecture, and adapt it to your specific needs and requirements. 
+Feel free to explore the provided examples, experiment with the MLOps reference architecture, and adapt it to your specific needs and requirements.
