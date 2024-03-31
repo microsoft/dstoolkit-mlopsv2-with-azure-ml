@@ -16,7 +16,7 @@ def test_train():
     result_dir = os.path.join("tests", "train_temp")
     os.makedirs(result_dir, exist_ok=True)
 
-    # Run the data_prep.py script as a subprocess
+    # Run the train.py script as a subprocess
     result = subprocess.run(
         [
             "python",

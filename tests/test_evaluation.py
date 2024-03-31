@@ -19,7 +19,7 @@ def test_evaluate():
     result_dir = os.path.join("tests", "evaluation_temp")
     os.makedirs(result_dir, exist_ok=True)
 
-    # Run the data_prep.py script as a subprocess
+    # Run the evaluate.py script as a subprocess
     result = subprocess.run(
         [
             "python",
