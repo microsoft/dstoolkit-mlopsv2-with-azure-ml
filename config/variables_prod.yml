@@ -1,0 +1,42 @@
+# Prod environment
+variables:
+  # Global
+  ap_vm_image: ubuntu-20.04
+
+  namespace: mlopsv2
+  location: australiaeast
+  environment: prod
+
+  # Azure DevOps
+  ado_service_connection_rg: Azure-ARM-Prod-MLOps
+  ado_service_connection_aml_ws: Azure-ARM-Prod-MLOps
+
+  # Compute target for pipeline
+  training_target: aml-compute-$(namespace)-$(environment)
+  training_target_sku: Standard_DS11_v2
+  training_target_min_nodes: 0
+  training_target_max_nodes: 2
+  training_target_tier: dedicated
+
+  # Azure ML Data assets
+  input_data_type: uri_folder
+  input_data_name: credit_default_data_input_dir
+  config_data_type: uri_file
+  config_data_name: credit_default_modelling_config
+
+  # Azure ML environment
+  environment_name: credit_default
+
+  # Model name in registry
+  model_name: credit_default_model
+
+  # Endpoint for the model
+  endpoint_name: credit-default-$(environment)
+  endpoint_type: online
+
+  # Deployment name
+  deployment_name: credit-default-deploy
+
+  # For pipeline reference
+  resource_group: rg-mlops-austeast
+  aml_workspace: aml-mlops-dev-austeast

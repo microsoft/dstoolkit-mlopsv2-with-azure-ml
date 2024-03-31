@@ -1,0 +1,26 @@
+{
+    "data": {
+        "data_file": "credit_default_test.xls",
+        "train_file": "train.csv",
+        "test_file": "test.csv",
+        "test_train_ratio": 0.25,
+        "eval_file": "test.csv"
+    },
+    "train": {
+        "n_estimators": 100,
+        "learning_rate": 0.05
+    },
+    "model": {
+        "model_file": "model.pkl",
+        "model_name": "credit_default_model"
+    },
+    "eval": {
+        "eval_file": "credit_default_eval.json",
+        "eval_file_last_model": "credit_default_eval_last.json",
+        "better_than_last_file": "better_than_last.txt"
+    },
+    "registry": {
+        "model_name": "credit_default_model"
+    }
+
+}

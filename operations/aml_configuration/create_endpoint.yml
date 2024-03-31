@@ -1,0 +1,9 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineEndpoint.schema.json
+# cli command to create the managed online endpoint on Azure ML
+# az ml online-endpoint create --file create_endpoint.yml
+
+# Name of the endpoint
+name: credit-default
+description: credit default prediction online endpoint
+# Authentication mode for the endpoint
+auth_mode: key

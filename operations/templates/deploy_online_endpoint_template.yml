@@ -1,0 +1,65 @@
+# This is a template for online endpoint deployment.
+
+parameters:
+  - name: endpoint_name
+    type: string
+  - name: endpoint_type
+    type: string
+  - name: deployment_name
+    type: string
+  - name: endpoint_file
+    type: string
+    default: "operations/aml_configuration/create_endpoint.yml"
+  - name: deployment_file
+    type: string
+    default: "operations/aml_configuration/mlflow_deploy_endpoint.yml"
+  - name: sample_request
+    type: string
+    default: "data/input/sample_request.json"
+  - name: delete_endpoint
+    type: boolean
+    default: false
+
+steps:
+  # Install the Azure CLI
+  - template: ../aml_cli_v2/install_az_cli.yml
+  # Install the Azure ML CLI
+  - template: ../aml_cli_v2/install_aml_cli.yml
+  # Connect to the Azure ML workspace
+  - template: ../aml_cli_v2/connect_to_workspace.yml
+
+  # Create the online endpoint
+  - template: ../aml_cli_v2/create_endpoint.yml
+    parameters:
+      endpoint_file: ${{ parameters.endpoint_file }}
+      endpoint_name: ${{ parameters.endpoint_name }}
+      endpoint_type: ${{ parameters.endpoint_type }}
+
+  # Create the online deployment
+  - template: ../aml_cli_v2/create_deployment.yml
+    parameters:
+      deployment_name: ${{ parameters.deployment_name }}
+      deployment_file: ${{ parameters.deployment_file }}
+      endpoint_name: ${{ parameters.endpoint_name }}
+      endpoint_type: ${{ parameters.endpoint_type }}
+
+  # Allocate traffic to the online deployment
+  - template: ../aml_cli_v2/allocate_traffic.yml
+    parameters:
+      endpoint_name: ${{ parameters.endpoint_name }}
+      traffic_allocation: ${{ parameters.deployment_name }}=100
+
+  # Test the online deployment
+  - template: ../aml_cli_v2/test_deployment.yml
+    parameters:
+      endpoint_name: ${{ parameters.endpoint_name }}
+      deployment_name: ${{ parameters.deployment_name }}
+      sample_request: ${{ parameters.sample_request }}
+      request_type: json
+
+  # Delete endpoint if delete_endpoint is true
+  - ${{ if eq(parameters.delete_endpoint, 'true') }}:
+      - template: ../aml_cli_v2/delete_endpoint.yml
+        parameters:
+          endpoint_name: ${{ parameters.endpoint_name }}
+          endpoint_type: ${{ parameters.endpoint_type }}

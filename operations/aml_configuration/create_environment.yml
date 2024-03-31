@@ -1,0 +1,10 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+# cli command to create the environment
+# az ml environment create --file create_environment.yml
+
+# Name of the environment
+name: credit_default
+# Base image for the environment
+image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest
+# Conda dependencies for the environment
+conda_file: ../../environment/conda.yml

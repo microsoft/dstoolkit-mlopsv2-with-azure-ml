@@ -1,0 +1,90 @@
+# This is a template for the model training pipeline.
+
+parameters:
+  - name: training_target
+    type: string
+  - name: training_target_sku
+    type: string
+  - name: training_target_min_nodes
+    type: number
+  - name: training_target_max_nodes
+    type: number
+  - name: training_target_tier
+    type: string
+  - name: compute_file
+    type: string
+    default: operations/aml_configuration/create_compute.yml
+  - name: environment_name
+    type: string
+  - name: environment_file
+    type: string
+    default: operations/aml_configuration/create_environment.yml
+  - name: input_data_type
+    type: string
+    default: uri_folder
+  - name: input_data_name
+    type: string
+  - name: input_data_file
+    type: string
+    default: operations/aml_configuration/create_input_data.yml
+  - name: config_data_type
+    type: string
+    default: uri_file
+  - name: config_data_name
+    type: string
+  - name: config_data_file
+    type: string
+    default: operations/aml_configuration/create_config_file.yml
+  - name: pipeline_file
+    type: string
+    default: operations/aml_configuration/create_training_pipeline.yml
+  - name: experiment_name
+    type: string
+  - name: display_name
+    type: string
+
+steps:
+  # Install the Azure CLI
+  - template: ../aml_cli_v2/install_az_cli.yml
+  # Install the Azure ML CLI
+  - template: ../aml_cli_v2/install_aml_cli.yml
+    # Connect to the Azure ML workspace
+  - template: ../aml_cli_v2/connect_to_workspace.yml
+    # Create the compute target.
+  - template: ../aml_cli_v2/create_compute.yml
+    parameters:
+      cluster_name: ${{ parameters.training_target }}
+      size: ${{ parameters.training_target_sku }}
+      min_instances: ${{ parameters.training_target_min_nodes}}
+      max_instances: ${{ parameters.training_target_max_nodes }}
+      cluster_tier: ${{ parameters.training_target_tier }}
+      compute_file: ${{ parameters.compute_file }}
+
+    # Register the environment
+  - template: ../aml_cli_v2/register_environment.yml
+    parameters:
+      build_type: conda
+      environment_name: ${{ parameters.environment_name }}
+      environment_file: ${{ parameters.environment_file }}
+
+    # Register the input data directory
+  - template: ../aml_cli_v2/register_data.yml
+    parameters:
+      data_type: ${{ parameters.input_data_type }}
+      data_name: ${{ parameters.input_data_name }}
+      data_file: ${{ parameters.input_data_file }}
+
+    # Register the modelling configuration file
+  - template: ../aml_cli_v2/register_data.yml
+    parameters:
+      data_type: ${{ parameters.config_data_type }}
+      data_name: ${{ parameters.config_data_name }}
+      data_file: ${{ parameters.config_data_file }}
+
+    # Run the ML Pipeline
+  - template: ../aml_cli_v2/run_pipeline.yml
+    parameters:
+      pipeline_file: ${{ parameters.pipeline_file }}
+      experiment_name: ${{ parameters.experiment_name }}
+      display_name: ${{ parameters.display_name }}
+      compute_target: ${{ parameters.training_target }}

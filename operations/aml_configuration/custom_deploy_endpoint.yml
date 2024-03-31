@@ -1,0 +1,14 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+# cli command to create the managed online deployment on Azure ML
+# az ml online-deployment create --file deploy_endpoint.yml
+
+
+name: credit-default-deployment
+endpoint_name: credit-default
+model: azureml:credit_default:1
+code_configuration:
+  code: ../../src/
+  scoring_script: score.py
+environment: azureml:credit_default:1
+instance_type: Standard_DS3_v2
+instance_count: 1

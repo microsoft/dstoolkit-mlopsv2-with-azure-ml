@@ -1,0 +1,121 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+
+# cli command to create the pipeline job
+# az ml job create --file create_training_pipeline.yml
+
+type: pipeline
+description: This pipeline trains a credit default prediction model
+experiment_name: credit default model training
+settings:
+  default_compute: azureml:aml-compute-cluster-ds11v2
+  force_rerun: true
+
+# This defines the inputs for the pipeline
+inputs:
+  # Path to the input data folder
+  data_input_dir:
+    type: uri_folder
+    mode: ro_mount
+    path: azureml:credit_default_data_input_dir@latest
+  # Modelling config
+  config_file:
+    type: uri_file
+    path: azureml:credit_default_modelling_config@latest
+
+# The jobs to be run in the pipeline
+jobs:
+  # Data preparation job
+  data_prep_job:
+    type: command
+    # Path to the script folder
+    code: ../../src/
+    # Command to run the data preparation script
+    command: >-
+      python data_prep.py  --data_input_dir ${{inputs.data_input_dir}}  
+      --data_output_dir ${{outputs.data_output_dir}}  --config_file ${{inputs.config_file}}
+
+    # Use the registered environment
+    environment: azureml:credit_default@latest
+    # This defines the inputs for data preparation job
+    inputs:
+      # Path to the output data folder, containing the train/test data
+      data_input_dir: ${{parent.inputs.data_input_dir}}
+      config_file: ${{parent.inputs.config_file}}
+    outputs:
+      data_output_dir:
+        type: uri_folder
+        mode: rw_mount
+        path: azureml://datastores/workspaceblobstore/paths/project_credit_default/data/output/
+
+  # Model training job
+  train_job:
+    type: command
+    # Path to the script folder
+    code: ../../src/
+    # Command to run the model training script
+    command: >-
+      python train.py  --data_dir ${{inputs.data_dir}}  --model_dir ${{outputs.model_dir}}  --config_file $${{inputs.config_file}}
+
+    # Use the default compute
+    # compute: azureml:aml-compute-cluster-ds11v2
+    # Use the registered environment
+    environment: azureml:credit_default@latest
+    # This defines the inputs for model training job
+    inputs:
+      data_dir: ${{parent.jobs.data_prep_job.outputs.data_output_dir}}
+      config_file: ${{parent.inputs.config_file}}
+    # This defines the outputs for model training job
+    outputs:
+      # Path to the output model folder
+      model_dir:
+        type: uri_folder
+        mode: rw_mount
+        path: azureml://datastores/workspaceblobstore/paths/project_credit_default/models/
+
+  # Model evaluation job
+  eval_job:
+    type: command
+    # Path to the script folder
+    code: ../../src/
+    # Command to run the model evaluation script
+    command: >-
+      python evaluate.py  --data_dir ${{inputs.data_dir}}  --model_dir ${{inputs.model_dir}}  --eval_dir ${{outputs.eval_dir}}  --config_file $${{inputs.config_file}}
+
+    # Use the default compute
+    # compute: azureml:aml-compute-cluster-ds11v2
+    # Use the registered environment
+    environment: azureml:credit_default@latest
+    # This defines the inputs for model evaluation job
+    inputs:
+      data_dir: ${{parent.jobs.data_prep_job.outputs.data_output_dir}}
+      model_dir: ${{parent.jobs.train_job.outputs.model_dir}}
+      config_file: ${{parent.inputs.config_file}}
+    outputs:
+      eval_dir:
+        type: uri_folder
+        mode: rw_mount
+        path: azureml://datastores/workspaceblobstore/paths/project_credit_default/eval/
+
+  # Model evaluation job
+  register_job:
+    type: command
+    # Path to the script folder
+    code: ../../src/
+    # Command to run the model evaluation script
+    command: >-
+      python register.py  --model_dir ${{inputs.model_dir}}  --eval_dir ${{inputs.eval_dir}}  --registry_dir ${{outputs.register_dir}} --config_file $${{inputs.config_file}}
+
+    # Use the default compute
+    # compute: azureml:aml-compute-cluster-ds11v2
+    # Use the registered environment
+    environment: azureml:credit_default@latest
+    # This defines the inputs for model evaluation job
+    inputs:
+      model_dir: ${{parent.jobs.train_job.outputs.model_dir}}
+      eval_dir: ${{parent.jobs.eval_job.outputs.eval_dir}}
+      config_file: ${{parent.inputs.config_file}}
+    outputs:
+      register_dir:
+        type: uri_folder
+        mode: rw_mount
+        path: azureml://datastores/workspaceblobstore/paths/project_credit_default/register/

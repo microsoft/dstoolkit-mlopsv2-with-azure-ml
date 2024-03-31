@@ -1,0 +1,10 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+# cli command to create the data asset
+# az ml data create --file create_config_file.yml
+
+# enter name for your data
+name: credit_default_modelling_config
+# invoke completions (Ctrl+Space, Cmd+Space) to see the list of types available
+type: uri_file
+# enter local/remote path to data
+path: ../../config/modelling.json

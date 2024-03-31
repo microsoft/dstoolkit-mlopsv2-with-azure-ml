@@ -1,0 +1,12 @@
+# This file captures auxiliary packages to facilitate 
+# development. Packages required for model development
+# are specified in conda.yml
+
+# Flake8 packages to lint the code
+flake8==6.0.0
+# Black packages to format the code
+black==22.6.0
+# Pytest packages to run tests
+pytest==7.3.1
+# Jupyter packages to create a kernel for the virtual environment
+ipykernel

@@ -1,0 +1,14 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+# cli command to create the managed online deployment on Azure ML
+# az ml online-deployment create --file mlflow_deploy_endpoint.yml
+
+
+name: credit-default-deployment
+endpoint_name: credit-default
+model: azureml:credit_default_model@latest
+instance_type: Standard_DS3_v2
+instance_count: 2
+app_insights_enabled: true
+liveness_probe:
+  initial_delay: 300
+  timeout: 300

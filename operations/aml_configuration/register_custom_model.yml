@@ -1,0 +1,8 @@
+$schema: https://azuremlschemas.azureedge.net/latest/model.schema.json
+# cli command to register the model
+# az ml model create --file register_custom_model.yml
+
+# Name of the model
+name: credit_default 
+# To register a model, specify the path for the saved model
+path: azureml://datastores/workspaceblobstore/paths/project_credit_default/models/

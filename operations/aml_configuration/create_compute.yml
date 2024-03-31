@@ -1,0 +1,22 @@
+$schema: https://azuremlschemas.azureedge.net/latest/amlCompute.schema.json
+# cli command to create the compute
+# az ml compute create --file create_compute.yml
+
+type: amlcompute
+#enter name for the compute
+name: aml-compute-cluster-ds11v2
+#enter VM size
+size: Standard_DS11_v2
+#enter minimum number of instances
+min_instances: 0
+#enter maximum number of instances
+max_instances: 2
+#enter idle time in seconds
+idle_time_before_scale_down: 600
+#system assigned identity
+identity:
+  type: system_assigned
+#set virtual network/subnet
+# network_settings:
+#   vnet_name: YOUR_VNET_NAME
+#   subnet: YOUR_SUBNET_NAME

@@ -1,0 +1,17 @@
+$schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
+# cli command to create the data asset
+# az ml data create --file create_input_data.yml
+
+
+# Can also register a folder as a data asset. 
+name: credit_default_data_input_dir
+# invoke completions (Ctrl+Space, Cmd+Space) to see the list of types available
+type: uri_folder
+# enter local path to data. This will upload the data to the default datastore
+path: ../../data/input
+
+# can also use remote path. In this case data need to be make available 
+# in the remote storage before running the pipeline. For example, if using the following
+# remote path setting, data need to be uploaded to the default datastore, under
+# the specified remote storage folder
+# path: azureml://datastores/workspaceblobstore/paths/project_credit_default/data/input/

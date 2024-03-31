@@ -1,0 +1,37 @@
+parameters:
+- name: deployment_name
+  type: string
+- name: deployment_file
+  type: string
+- name: enable_monitoring
+  type: string
+  default: 'false'
+- name: endpoint_type
+  type: string
+  default: 'online'
+- name: endpoint_name
+  type: string
+
+steps:
+  - task: AzureCLI@2
+    displayName: Create deployment
+    continueOnError: true
+    inputs: 
+      azureSubscription: $(ado_service_connection_rg)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -o xtrace
+        deployment=$(az ml ${{ parameters.endpoint_type }}-deployment list --endpoint-name ${{ parameters.endpoint_name }} -o tsv --query "[?name=='${{ parameters.deployment_name }}'][name]")
+
+        if [[ -z "$deployment" ]] 
+        then
+            echo "Start the deployment..."
+            az ml ${{ parameters.endpoint_type }}-deployment create --name ${{ parameters.deployment_name }} --endpoint-name ${{ parameters.endpoint_name }} \
+              -f ${{ parameters.deployment_file }}
+        else
+            echo "Update the existing deployment..."
+            az ml ${{ parameters.endpoint_type }}-deployment update --name ${{ parameters.deployment_name }} --endpoint-name ${{ parameters.endpoint_name }} \
+              -f ${{ parameters.deployment_file }}           
+        fi
+

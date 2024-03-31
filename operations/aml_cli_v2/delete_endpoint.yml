@@ -1,0 +1,25 @@
+parameters: 
+- name: endpoint_name
+  type: string
+- name: endpoint_type
+  type: string
+  default: online
+
+steps:
+  - task: AzureCLI@2
+    displayName: Delete endpoint 
+    continueOnError: true
+    inputs: 
+      azureSubscription: $(ado_service_connection_rg)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        ENDPOINT_EXISTS=$(az ml ${{ parameters.endpoint_type }}-endpoint list -o tsv --query "[?name=='${{ parameters.endpoint_name }}'][name]" | wc -l)
+        echo $ENDPOINT_NAME $ENDPOINT_EXISTS
+
+        if [[ ENDPOINT_EXISTS -ne 1 ]]; then
+            echo "Endpoint doesn't exist..."
+        else
+            echo "Deleting endpoint..."
+            az ml ${{ parameters.endpoint_type }}-endpoint delete --name ${{ parameters.endpoint_name }} --yes
+        fi

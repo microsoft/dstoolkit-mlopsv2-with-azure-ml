@@ -1,0 +1,83 @@
+# This is a pull request validation pipeline that runs 
+# the unit tests, integration test, and smoke test.
+
+variables:
+  - ${{ if or(eq(variables['Build.SourceBranchName'], 'main'), startsWith(variables['Build.SourceBranchName'], 'releases/')) }}:
+      # 'main' or 'releases/*' branches: PRD environment
+      - template: ../../config/variables_prod.yml
+  - ${{ if and(ne(variables['Build.SourceBranchName'], 'main'), not(startsWith(variables['Build.SourceBranchName'], 'releases/')))}}:
+      # 'develop' or feature branches: DEV environment
+      - template: ../../config/variables_dev.yml
+
+# This sets up the optional triggers.
+trigger: none
+
+# Image used to run the pipeline
+pool:
+  vmImage: $(ap_vm_image)
+
+stages:
+  # Unit test stage
+  - stage: UnitTest
+    displayName: Unit Tests
+    jobs:
+      - job: RunUnitTest
+        displayName: Run unit tests
+        steps:
+          - template: ../templates/unit_tests_template.yml
+
+  # Integration test stage
+  - stage: IntegrationTest
+    displayName: Integration Test
+    dependsOn: UnitTest
+    condition: succeeded()
+    jobs:
+      - job: ModelTrainingPipeline
+        displayName: Model Training Pipeline
+        steps:
+          - template: ../templates/model_training_pipeline_template.yml
+            parameters:
+              # Compute settings
+              training_target: $(training_target)
+              training_target_sku: $(training_target_sku)
+              training_target_min_nodes: ${{ variables.training_target_min_nodes }}
+              training_target_max_nodes: ${{ variables.training_target_max_nodes }}
+              training_target_tier: $(training_target_tier)
+              compute_file: operations/aml_configuration/create_compute.yml
+              # Environment settings
+              environment_name: $(environment_name)
+              environment_file: operations/aml_configuration/create_environment.yml
+              # Input data settings
+              input_data_type: $(input_data_type)
+              input_data_name: $(input_data_name)
+              input_data_file: operations/aml_configuration/create_input_data.yml
+              config_data_type: $(config_data_type)
+              config_data_name: $(config_data_name)
+              config_data_file: operations/aml_configuration/create_config_file.yml
+              # Pipeline settings
+              pipeline_file: operations/aml_configuration/create_training_pipeline.yml
+              experiment_name: $(environment)_credit_default_train_$(Build.SourceBranchName)
+              display_name: $(environment)_credit_default_run_$(Build.BuildID)
+
+  # Deploy stage
+  - stage: SmokeTest
+    displayName: Smoke Test
+    dependsOn: IntegrationTest
+    condition: succeeded()
+    jobs:
+      - job: DeployEndpoint
+        displayName: Deploy and Test Endpoint
+        steps:
+          - template: ../templates/deploy_online_endpoint_template.yml
+            parameters:
+              # Endpoint settings
+              endpoint_file: operations/aml_configuration/create_endpoint.yml
+              endpoint_name: $(endpoint_name)-$(Build.BuildId)
+              endpoint_type: $(endpoint_type)
+              # Deployment settings
+              deployment_name: $(deployment_name)
+              deployment_file: operations/aml_configuration/mlflow_deploy_endpoint.yml
+              # Sample request data
+              sample_request: data/input/sample_request.json
+              # Delete the endpoint after PR validation
+              delete_endpoint: true

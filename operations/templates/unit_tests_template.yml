@@ -1,0 +1,35 @@
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.8"
+      architecture: "x64"
+
+  - script: |
+      pip install -r environment/unit_test_requirements.txt
+    displayName: "Install unit test dependencies"
+
+  - script: |
+      flake8 src --max-line-length 88 --output-file=flake8-testresults.xml --format junit-xml
+    displayName: "Run code quality tests (Flake8)"
+
+  - script: |
+      bandit -r src notebooks
+    displayName: "Run bandit tests"
+
+  - script: |
+      pytest -v tests --doctest-modules --junitxml=unit-testresults.xml  --cov=src --cov-append --cov-report=xml:coverage.xml
+    displayName: "Run all unit tests"
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: "JUnit"
+      testResultsFiles: "**/*-testresults.xml"
+      testRunTitle: "$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version) - Linting and Unit Test results"
+    condition: succeededOrFailed()
+    displayName: "Publish unit test results"
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: "coverage.xml"
+    displayName: "Publish Coverage Results"
