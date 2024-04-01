@@ -1,7 +1,7 @@
 # This file captures the packages required for unit test.
 
 # pip 
-pip==21.2.4
+pip==23.3
 # Flake8 packages to lint the code
 flake8==6.0.0
 # Flake8 package to format the linting output in JUnit XML format
