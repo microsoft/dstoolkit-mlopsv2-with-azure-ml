@@ -5,7 +5,7 @@
 # Flake8 packages to lint the code
 flake8==6.0.0
 # Black packages to format the code
-black==22.6.0
+black==24.3.0
 # Pytest packages to run tests
 pytest==7.3.1
 # Jupyter packages to create a kernel for the virtual environment
