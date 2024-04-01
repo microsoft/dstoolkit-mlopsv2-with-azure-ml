@@ -72,8 +72,8 @@ Follow the following steps to experiment with the modelling code "locally" on yo
 
 1. Clone the repository to your dev machine (consider using Azure ML compute instance as your "local" dev machine):
     ```bash
-    git clone https://github.com/yuj18/mlops-with-azure-ml.git
-    cd mlops-with-azure-ml
+    git clone https://github.com/microsoft/dstoolkit-mlopsv2-with-azure-ml.git
+    cd dstoolkit-mlopsv2-with-azure-ml
     ```
 2. Create a Conda environment:
     ```bash

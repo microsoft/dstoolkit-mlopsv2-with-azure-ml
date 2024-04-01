@@ -1,0 +1,45 @@
+name: Run Unit Tests for PR in This repo
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches: [ main ]
+    
+  push:
+    branches:
+      - main
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install Conda dependencies
+        run: |
+          conda install -y python=3.8
+          conda env update --file environment/conda.yml --name base
+
+      - name: Install additional dependencies for unit tests
+        run: pip install -r environment/unit_test_requirements.txt
+
+      - name: Run Flake8
+        run: flake8 src --max-line-length 88 --output-file=flake8-testresults.xml --format junit-xml
+
+      - name: Run Bandit
+        run: bandit -r src notebooks
+
+      - name: Run Pytest
+        run: pytest -v tests --doctest-modules --junitxml=unit-testresults.xml  --cov=src --cov-append --cov-report=xml:coverage.xml
