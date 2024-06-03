@@ -118,7 +118,7 @@ In addition to running unit tests, you can perform additional checks to ensure c
   ```
 
   > **Tip:**
-  > Formatter plugins like Visual Studio Code's [Black formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter) can be used to automatically format your code according to the specified style guide. It will not only save you time but also make the code more readable with consistent style.
+  > Formatter plugins like Visual Studio Code's [Black formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter) can be used to automatically format your code according to the specified style guide. It will not only save you time but also make the code more readable with consistent style. Code linting tools like [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8) can be used to highlight potential issues in your code and enforce coding standards.
 
 
 * Security checking using `bandit` (e.g., detecting hard-coded secrets):
